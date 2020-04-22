@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.test</groupId>
+	<artifactId>demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>testing</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>rpm-maven-plugin</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.2.0</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>demo-rpm</id>
+						<goals>
+							<goal>rpm</goal>
+						</goals>
+						<configuration>
+							<name>pico-demo</name>
+							<needarch>noarch</needarch>
+							<targetOS>linux</targetOS>
+							<defaultUsername>root</defaultUsername>
+							<defaultGroupname>root</defaultGroupname>
+							<group>Application/Pico</group>
+							<mappings>
+								<mapping>
+									<directory>/opt/pico-demo</directory>
+									<dirmode>775</dirmode>
+									<username>root</username>
+									<groupname>root</groupname>
+								</mapping>
+								<mapping>
+									<directory>/opt/pico-demo</directory>
+									<filemode>664</filemode>
+									<username>root</username>
+									<groupname>root</groupname>
+									<directoryIncluded>false</directoryIncluded>
+									<sources>
+										<source>
+											<location>target/demo-${project.version}.jar</location>
+										</source>
+									</sources>
+								</mapping>
+							</mappings>
+							<!--preinstallScriptlet>
+								<scriptFile>src/main/scripts/rpm-preinstall.sh</scriptFile>
+								<fileEncoding>utf-8</fileEncoding>
+							</preinstallScriptlet>
+							<postinstallScriptlet>
+								<scriptFile>src/main/scripts/rpm-postinstall.sh</scriptFile>
+								<fileEncoding>utf-8</fileEncoding>
+							</postinstallScriptlet>
+							<preremoveScriptlet>
+								<scriptFile>src/main/scripts/rpm-preremove.sh</scriptFile>
+								<fileEncoding>utf-8</fileEncoding>
+							</preremoveScriptlet-->
+							<postinstallScriptlet>
+								<script>
+									echo "remove ${project.version} from jar names"
+									mv /opt/pico-demo/demo-${project.version}.jar /opt/pico-demo/demo.jar
+								</script>
+							</postinstallScriptlet>
+							<preremoveScriptlet>
+								<script>
+									echo "add ${project.version} to jar names"
+									mv /opt/pico-demo/demo.jar /opt/pico-demo/demo-${project.version}.jar
+								</script>
+							</preremoveScriptlet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
